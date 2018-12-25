@@ -1,7 +1,7 @@
-# Frp Install Script
-This is a simple script to install frp
+# frp Install Script
+This is a simple script to install frp server
 
-Frp is a fast reverse proxy to help you expose a local server behind a NAT or firewall to the internet.
+frp is a fast reverse proxy to help you expose a local server behind a NAT or firewall to the internet.
 
 It comes from [https://github.com/fatedier/frp](https://github.com/fatedier/frp)
 
@@ -10,6 +10,8 @@ This script will install frp in ``/usr/local/frp``
 And it adds a system service to manage Frp more easily.
 
 It is located at ``/lib/systemd/system/frps.service``
+
+There is more config in ``/usr/local/frp/frp/frps_full.ini`` or you can see more in [frps full configuration file](https://github.com/fatedier/frp/blob/master/conf/frps_full.ini)
 
 ## Notice
 
