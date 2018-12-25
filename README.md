@@ -15,7 +15,7 @@ There is more config in ``/usr/local/frp/frp/frps_full.ini`` or you can see more
 
 ## Notice
 
-**This script is only tested under CentOS 7**
+**This script is tested under CentOS 7 and Ubuntu 18.04.1 LTS**
 
 
 
