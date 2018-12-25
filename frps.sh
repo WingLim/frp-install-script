@@ -38,11 +38,11 @@ get_ip(){
 pre_install(){
 	clear
     mkdir /usr/local/frp/config
-    echo -e "Please enter a port for Frp:"
+    echo -e "Please enter a port for frp:"
     read -p "(Default port: 7000):" bind_port
     [ -z "${bind_port}" ] && bind_port="7000"
 
-    echo -e "Please enter a dashboard port for Frp:"
+    echo -e "Please enter a dashboard port for frp:"
     read -p "(Default dashboard port: 7500):" dashboard_port
     [ -z "${dashboard_port}" ] && dashboard_port="7500"
 
@@ -142,7 +142,7 @@ EOF
     echo
     echo -e "Congratulations, frp server install completed!"
     echo -e "Your Server IP          : ${green} $(get_ip) ${plain}"
-    echo -e "Your Frp Port           : ${green} ${bind_port} ${plain}"
+    echo -e "Your frp Port           : ${green} ${bind_port} ${plain}"
     echo -e "Your Dashboard User     : ${green} ${dashboard_user} ${plain}"
     echo -e "Your Dashboard Password : ${green} ${dashboard_pwd} ${plain}"
     echo -e "Now you can reach Dashboard at ${green}http://$(get_ip):${dashboard_port} ${plain}"
@@ -160,7 +160,7 @@ install_frp(){
 }
 
 uninstall_frp(){
-    printf "Are you sure uninstall Frp? (y/n)"
+    printf "Are you sure uninstall frp? (y/n)"
     printf "\n"
     read -p "(Default: n):" answer
     [ -z ${answer} ] && answer="n"
@@ -169,7 +169,7 @@ uninstall_frp(){
         systemctl disable frps
         rm -rf /usr/local/frp
         rm -rf /lib/systemd/system/frps.service
-        echo "Frp uninstall success!"
+        echo "frp uninstall success!"
     else
         echo "Uninstall cancelled, nothing to do..."
     fi
