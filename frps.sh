@@ -10,8 +10,8 @@ plain='\033[0m'
 [[ $EUID -ne 0 ]] && echo -e "[${red}Error${plain}] This script must be run as root!" && exit 1
 
 # Download frp
-frpurl=https://github.com/fatedier/frp/releases/download/v0.22.0/frp_0.22.0_linux_amd64.tar.gz
-frp_v=frp_0.22.0_linux_amd64
+frpurl=https://github.com/fatedier/frp/releases/download/v0.27.0/frp_0.27.0_linux_amd64.tar.gz
+frp_v=frp_0.27.0_linux_amd64
 download_frp(){
     if ! wget -P /usr/local ${frpurl}; then
 	    echo -e "[${red}Error${plain}] Failed to download ${frp_v}.tar.gz!"
