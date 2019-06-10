@@ -5,26 +5,24 @@ frp is a fast reverse proxy to help you expose a local server behind a NAT or fi
 
 It comes from [https://github.com/fatedier/frp](https://github.com/fatedier/frp)
 
-This script will install frp in ``/usr/local/frp``
+And this script adds a system service to manage Frp more easily.
 
-And it adds a system service to manage Frp more easily.
+## Install
 
-It is located at ``/lib/systemd/system/frps.service``
-
-There is more config in ``/usr/local/frp/frp/frps_full.ini`` or you can see more in [frps full configuration file](https://github.com/fatedier/frp/blob/master/conf/frps_full.ini)
-
-## Notice
-
-**This script is tested under CentOS 7 and Ubuntu 18.04.1 LTS**
+```bash
+wget --no-check-certificate https://raw.githubusercontent.com/WingLim/frp_install_script/master/frps.sh
+chmod +x frps.sh
+./frps.sh 2>&1 | tee frps.log
+```
 
 
 
 ## Usage
 
 ```bash
-wget --no-check-certificate https://raw.githubusercontent.com/WingLim/frp_install_script/master/frps.sh
-chmod +x frps.sh
-./frps.sh 2>&1 | tee frps.log
+systemctl start frps
+systemctl stop frps
+systemctl status frps
 ```
 
 
@@ -37,16 +35,20 @@ chmod +x frps.sh
 
 
 
-## Where is config
+## Notice
 
-``/usr/local/frp/config/frps.ini``
+**This script is tested under CentOS 7 and Ubuntu 18.04.1 LTS**
 
 
 
-## Start&Stop&Status
+## Config
 
-```bash
-systemctl start frps
-systemctl stop frps
-systemctl status frps
-```
+There is more config in ``/usr/local/frp/frp/frps_full.ini`` or you can see more in [frps full configuration file](https://github.com/fatedier/frp/blob/master/conf/frps_full.ini)
+
+Where is config?``/usr/local/frp/config/frps.ini``
+
+Where is frp? ``/usr/local/frp``
+
+Where is frps.service? ``/lib/systemd/system/frps.service``
+
+
