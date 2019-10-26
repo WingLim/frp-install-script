@@ -19,7 +19,7 @@ check_frp_ver(){
 # Download frp
 download_frp(){
     check_frp_ver
-    frp_ver_name="frp_"$(echo ${frp_ver}|sed -r 's/v//g')"_linux_amd64"
+    frp_ver_name="frp_"$(echo ${frp_ver}|sed -r "s/v//g")"_linux_amd64"
     frp_url=https://github.com/fatedier/frp/releases/download/${frp_ver}/${frp_ver_name}.tar.gz
     if ! wget -P /usr/local ${frp_url}; then
 	    echo -e "[${red}Error${plain}] Failed to download ${frp_ver_name}.tar.gz!"
