@@ -133,6 +133,7 @@ StandardOutput=syslog
 [Install]
 WantedBy=multi-user.target
 EOF
+    systemctl daemon-reload
 }
 # Install frp
 install(){
