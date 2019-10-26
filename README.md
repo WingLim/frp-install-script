@@ -19,7 +19,7 @@ chmod +x frps.sh
 
 ## 配置
 
-配置文件位于 ``/usr/local/frp/config/frps.ini``
+配置文件位于 ``/usr/local/frp/frps.ini``
 
 想要配置更多内容请参考 [frps full configuration file](https://github.com/fatedier/frp/blob/master/conf/frps_full.ini)
 
