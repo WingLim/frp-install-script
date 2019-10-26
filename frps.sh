@@ -30,7 +30,7 @@ download_frp(){
 
 # Unzip to /usr/local/frp
 unzip_frp(){
-    tar -xvf /usr/local/frp/${frp_ver_name}.tar.gz
+    tar -xvf /usr/local/frp/${frp_ver_name}.tar.gz -C /usr/local/frp
     rm -rf /usr/local/frp/${frp_ver_name}.tar.gz
     mv /usr/local/frp/${frp_ver_name}/frps /usr/local/frp
     rm -rf /usr/local/frp/${frp_ver_name}
@@ -47,7 +47,6 @@ get_ip(){
 # Configure frp and output frps.ini
 pre_install(){
 	clear
-    mkdir /usr/local/frp/config
     echo -e "Please enter a port for frp:"
     read -p "(Default port: 7000):" bind_port
     [ -z "${bind_port}" ] && bind_port="7000"
@@ -127,7 +126,7 @@ Wants=network.target
 
 [Service]
 Type=simple
-ExecStart=/usr/local/frp/frps -c /usr/local/frp/config/frps.ini
+ExecStart=/usr/local/frp/frps -c /usr/local/frp/frps.ini
 ExecStop=/bin/kill -s QUIT \$MAINPID
 StandardOutput=syslog
 
@@ -137,7 +136,7 @@ EOF
 }
 # Install frp
 install(){
-    cat > /usr/local/frp/config/frps.ini<<-EOF
+    cat > /usr/local/frp/frps.ini<<-EOF
 [common]
 bind_port = ${bind_port}
 dashboard_port = ${dashboard_port}
