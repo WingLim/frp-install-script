@@ -7,7 +7,7 @@ yellow='\033[0;33m'
 plain='\033[0m'
 
 # Make sure only root can run our script
-[[ $EUID -ne 0 ]] && echo -e "[${red}Error${plain}] This script must be run as root!" && exit 1
+[[ $EUID -ne 0 ]] && echo -e "[${red}Error${plain}] 当前账号非ROOT(或没有ROOT权限)，无法继续操作!" && exit 1
 
 check_frp_ver(){
 	echo -e "开始获取 frp 最新版本..."
@@ -65,55 +65,54 @@ pre_install(){
 }
 
 # Get version
-get_system_ver(){
-    if [[ -s /etc/redhat-release ]]; then
-        grep -oE  "[0-9.]+" /etc/redhat-release
-    else
-        grep -oE  "[0-9.]+" /etc/issue
+check_sys(){
+	if [[ -f /etc/redhat-release ]]; then
+		release="centos"
+	elif cat /etc/issue | grep -q -E -i "debian"; then
+		release="debian"
+	elif cat /etc/issue | grep -q -E -i "ubuntu"; then
+		release="ubuntu"
+	elif cat /etc/issue | grep -q -E -i "centos|red hat|redhat"; then
+		release="centos"
+	elif cat /proc/version | grep -q -E -i "debian"; then
+		release="debian"
+	elif cat /proc/version | grep -q -E -i "ubuntu"; then
+		release="ubuntu"
+	elif cat /proc/version | grep -q -E -i "centos|red hat|redhat"; then
+		release="centos"
     fi
+	bit=`uname -m`
 }
 
-# CentOS version
-centos_ver(){
-    local code=$1
-    local version="$(get_system_ver)"
-    local main_ver=${version%%.*}
-    if [ "$main_ver" == "$code" ]; then
-        return 0
-    else
-        return 1
-    fi
+# 设置 防火墙规则
+add_iptables(){
+	if [[ ! -z "${bind_port}" && "${dashboard_port}" ]]; then
+        iptables -I INPUT -m state --state NEW -m tcp -p tcp --dport ${bind_port} -j ACCEPT
+        iptables -I INPUT -m state --state NEW -m tcp -p tcp --dport ${dashboard_port} -j ACCEPT
+	fi
 }
-
-# Firewall set
-firewall_set(){
-    echo -e "[${green}Info${plain}] firewall set start..."
-    if centos_ver 6; then
-        /etc/init.d/iptables status > /dev/null 2>&1
-        if [ $? -eq 0 ]; then
-            iptables -L -n | grep -i ${bind_port} > /dev/null 2>&1
-            if [ $? -ne 0 ]; then
-                iptables -I INPUT -m state --state NEW -m tcp -p tcp --dport ${bind_port} -j ACCEPT
-                iptables -I INPUT -m state --state NEW -m tcp -p tcp --dport ${dashboard_port} -j ACCEPT
-                /etc/init.d/iptables save
-                /etc/init.d/iptables restart
-            else
-                echo -e "[${green}Info${plain}] port ${bind_port} and ${dashboard_port} has been set up."
-            fi
-        else
-            echo -e "[${yellow}Warning${plain}] iptables looks like shutdown or not installed, please manually set it if necessary."
-        fi
-    elif centos_ver 7; then
-        systemctl status firewalld > /dev/null 2>&1
-        if [ $? -eq 0 ]; then
-            firewall-cmd --permanent --zone=public --add-port=${bind_port}/tcp
-            firewall-cmd --permanent --zone=public --add-port=${dashboard_port}/tcp
-            firewall-cmd --reload
-        else
-            echo -e "[${yellow}Warning${plain}] firewalld looks like not running or not installed, please enable port ${shadowsocksport} manually if necessary."
-        fi
-    fi
-    echo -e "[${green}Info${plain}] firewall set completed..."
+del_iptables(){
+	if [[ ! -z "${bind_port}" && "${dashboard_port}" ]]; then
+		iptables -I INPUT -m state --state NEW -m tcp -p tcp --dport ${bind_port} -j ACCEPT
+        iptables -I INPUT -m state --state NEW -m tcp -p tcp --dport ${dashboard_port} -j ACCEPT
+	fi
+}
+save_iptables(){
+	if [[ ${release} == "centos" ]]; then
+		service iptables save
+	else
+		iptables-save > /etc/iptables.up.rules
+	fi
+}
+set_iptables(){
+	if [[ ${release} == "centos" ]]; then
+		service iptables save
+		chkconfig --level 2345 iptables on
+	else
+		iptables-save > /etc/iptables.up.rules
+		echo -e '#!/bin/bash\n/sbin/iptables-restore < /etc/iptables.up.rules' > /etc/network/if-pre-up.d/iptables
+		chmod +x /etc/network/if-pre-up.d/iptables
+	fi
 }
 
 # Add frp to system service
@@ -163,7 +162,9 @@ install_frp(){
     unzip_frp
     pre_install
     add_frp_service
-    firewall_set
+    set_iptables
+    add_iptables
+    save_iptables
     install
 }
 
@@ -177,6 +178,8 @@ uninstall_frp(){
         systemctl disable frps
         rm -rf /usr/local/frp
         rm -rf /lib/systemd/system/frps.service
+        del_iptables
+        save_iptables
         echo "frp uninstall success!"
     else
         echo "Uninstall cancelled, nothing to do..."
