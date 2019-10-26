@@ -20,8 +20,11 @@ chmod +x frps.sh
 ## 配置
 
 配置文件位于 ``/usr/local/frp/config/frps.ini``
+
 想要配置更多内容请参考 [frps full configuration file](https://github.com/fatedier/frp/blob/master/conf/frps_full.ini)
+
 frps 安装在 ``/usr/local/frp``
+
 frps.service 安装在 ``/lib/systemd/system/frps.service``
 
 ## 使用
