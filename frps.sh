@@ -19,9 +19,10 @@ check_frp_ver(){
 # Download frp
 download_frp(){
     check_frp_ver
+    mkdir /usr/local/frp
     frp_ver_name="frp_"$(echo ${frp_ver}|sed -r "s/v//g")"_linux_amd64"
     frp_url=https://github.com/fatedier/frp/releases/download/${frp_ver}/${frp_ver_name}.tar.gz
-    if ! wget -P /usr/local ${frp_url}; then
+    if ! wget -P /usr/local/frp ${frp_url}; then
 	    echo -e "[${red}Error${plain}] Failed to download ${frp_ver_name}.tar.gz!"
 	    exit 1
     fi
@@ -29,9 +30,10 @@ download_frp(){
 
 # Unzip to /usr/local/frp
 unzip_frp(){
-    tar -xvf /usr/local/${frp_ver_name}.tar.gz -C /usr/local
-    rm -rf /usr/local/${frp_ver_name}.tar.gz
-    mv /usr/local/${frp_ver_name} /usr/local/frp
+    tar -xvf /usr/local/frp/${frp_ver_name}.tar.gz
+    rm -rf /usr/local/frp/${frp_ver_name}.tar.gz
+    mv /usr/local/frp/${frp_ver_name}/frps /usr/local/frp
+    rm -rf /usr/local/frp/${frp_ver_name}
 }
 
 # Get public IP address
