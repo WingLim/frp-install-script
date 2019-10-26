@@ -9,21 +9,30 @@ plain='\033[0m'
 # Make sure only root can run our script
 [[ $EUID -ne 0 ]] && echo -e "[${red}Error${plain}] This script must be run as root!" && exit 1
 
+check_frp_ver(){
+	echo -e "开始获取 frp 最新版本..."
+	frp_ver=$(wget -qO- "https://github.com/fatedier/frp/tags"|grep "/fatedier/frp/releases/tag/"|head -1|sed -r 's/.*tag\/(.+)\">.*/\1/')
+	[[ -z ${frp_ver} ]] && frp_ver=${frp_ver}
+	echo -e "frp 最新版本为 ${frp_ver} !"
+}
+
 # Download frp
-frpurl=https://github.com/fatedier/frp/releases/download/v0.27.0/frp_0.27.0_linux_amd64.tar.gz
-frp_v=frp_0.27.0_linux_amd64
+frp_ver_name="frp_"$(echo ${frp_ver}|sed -r 's/v//g')"_linux_amd64"
+frp_url=https://github.com/fatedier/frp/releases/download/${frp_ver}/${frp_ver_name}.tar.gz
+
 download_frp(){
-    if ! wget -P /usr/local ${frpurl}; then
-	    echo -e "[${red}Error${plain}] Failed to download ${frp_v}.tar.gz!"
+    check_frp_ver
+    if ! wget -P /usr/local ${frp_url}; then
+	    echo -e "[${red}Error${plain}] Failed to download ${frp_ver_name}.tar.gz!"
 	    exit 1
     fi
 }
 
 # Unzip to /usr/local/frp
 unzip_frp(){
-    tar -xvf /usr/local/${frp_v}.tar.gz -C /usr/local
-    rm -rf /usr/local/${frp_v}.tar.gz
-    mv /usr/local/${frp_v} /usr/local/frp
+    tar -xvf /usr/local/${frp_ver_name}.tar.gz -C /usr/local
+    rm -rf /usr/local/${frp_ver_name}.tar.gz
+    mv /usr/local/${frp_ver_name} /usr/local/frp
 }
 
 # Get public IP address
@@ -56,7 +65,7 @@ pre_install(){
 }
 
 # Get version
-getversion(){
+get_system_ver(){
     if [[ -s /etc/redhat-release ]]; then
         grep -oE  "[0-9.]+" /etc/redhat-release
     else
@@ -65,9 +74,9 @@ getversion(){
 }
 
 # CentOS version
-centosversion(){
+centos_ver(){
     local code=$1
-    local version="$(getversion)"
+    local version="$(get_system_ver)"
     local main_ver=${version%%.*}
     if [ "$main_ver" == "$code" ]; then
         return 0
@@ -79,7 +88,7 @@ centosversion(){
 # Firewall set
 firewall_set(){
     echo -e "[${green}Info${plain}] firewall set start..."
-    if centosversion 6; then
+    if centos_ver 6; then
         /etc/init.d/iptables status > /dev/null 2>&1
         if [ $? -eq 0 ]; then
             iptables -L -n | grep -i ${bind_port} > /dev/null 2>&1
@@ -94,7 +103,7 @@ firewall_set(){
         else
             echo -e "[${yellow}Warning${plain}] iptables looks like shutdown or not installed, please manually set it if necessary."
         fi
-    elif centosversion 7; then
+    elif centos_ver 7; then
         systemctl status firewalld > /dev/null 2>&1
         if [ $? -eq 0 ]; then
             firewall-cmd --permanent --zone=public --add-port=${bind_port}/tcp
@@ -149,7 +158,6 @@ EOF
     echo
 }
 
-# Install frp
 install_frp(){
     download_frp
     unzip_frp
